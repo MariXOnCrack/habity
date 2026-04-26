@@ -578,6 +578,9 @@ function TimelapseView({ items, frames, frameIndex, filter, playing, onFilter, o
 function ProgressView({ items }) {
   const calendar = getActivityCalendar(items, ACTIVITY_WEEK_COUNT);
   const stats = getProgressStats(items, calendar.days);
+  const weeklyProgress = getWeeklyProgress(calendar.weeks);
+  const weekdayProgress = getWeekdayProgress(calendar.days);
+  const itemProgress = getItemProgress(items, calendar.days);
 
   return (
     <section className="progress-view">
@@ -585,49 +588,114 @@ function ProgressView({ items }) {
         <h2>Progress map</h2>
         <span>{calendar.rangeLabel}</span>
       </div>
-      <div className="grid-card">
-        <div className="heatmap-wrap" role="img" aria-label={`GitHub style activity from ${calendar.rangeLabel}`}>
-          <div className="activity-grid" style={{ "--week-count": calendar.weeks.length }}>
-            <div className="month-labels" aria-hidden="true">
-              {calendar.months.map((month) => (
-                <span key={`${month.label}-${month.start}`} style={{ gridColumn: `${month.start} / ${month.end}` }}>
-                  {month.label}
-                </span>
-              ))}
+      <div className="progress-dashboard">
+        <div className="grid-card progress-map-card">
+          <div className="heatmap-wrap" role="img" aria-label={`GitHub style activity from ${calendar.rangeLabel}`}>
+            <div className="activity-grid" style={{ "--week-count": calendar.weeks.length }}>
+              <div className="month-labels" aria-hidden="true">
+                {calendar.months.map((month) => (
+                  <span key={`${month.label}-${month.start}`} style={{ gridColumn: `${month.start} / ${month.end}` }}>
+                    {month.label}
+                  </span>
+                ))}
+              </div>
+              <div className="weekday-labels" aria-hidden="true">
+                {DAY_LABELS.map((label) => (
+                  <span key={label}>{label}</span>
+                ))}
+              </div>
+              <div className="heatmap">
+                {calendar.weeks.map((week, weekIndex) => (
+                  <div className="heatmap-week" key={week.key}>
+                    {week.days.map((day) => (
+                      <span
+                        key={day.key}
+                        className={`day-cell level-${day.level} ${day.isToday ? "is-today" : ""} ${day.isFuture ? "is-future" : ""}`}
+                        style={fadeDelayStyle(weekIndex * 16)}
+                        title={formatActivityTitle(day)}
+                        aria-label={formatActivityTitle(day)}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="weekday-labels" aria-hidden="true">
-              {DAY_LABELS.map((label) => (
-                <span key={label}>{label}</span>
-              ))}
-            </div>
-            <div className="heatmap">
-              {calendar.weeks.map((week, weekIndex) => (
-                <div className="heatmap-week" key={week.key}>
-                  {week.days.map((day) => (
-                    <span
-                      key={day.key}
-                      className={`day-cell level-${day.level} ${day.isToday ? "is-today" : ""} ${day.isFuture ? "is-future" : ""}`}
-                      style={fadeDelayStyle(weekIndex * 16)}
-                      title={formatActivityTitle(day)}
-                      aria-label={formatActivityTitle(day)}
-                    />
-                  ))}
+          </div>
+          <div className="legend">
+            <span>Less</span>
+            {[0, 1, 2, 3, 4].map((level) => (
+              <span key={level} className={`legend-dot day-cell level-${level}`} style={fadeDelayStyle(level * 30)} />
+            ))}
+            <span>More</span>
+          </div>
+          <div className="stats">
+            <Stat value={stats.currentStreak} label="day streak" enterDelay={0} />
+            <Stat value={stats.completeDays} label="complete days" enterDelay={40} />
+            <Stat value={stats.totalProofs} label="proofs" enterDelay={80} />
+          </div>
+        </div>
+
+        <div className="chart-card weekly-chart-card">
+          <div className="chart-title">
+            <h3>Weekly completion</h3>
+            <span>{stats.averagePercent}% avg</span>
+          </div>
+          <div className="weekly-bars" aria-label="Weekly completion chart">
+            {weeklyProgress.map((week, index) => (
+              <div
+                key={week.key}
+                className="weekly-bar"
+                style={{ "--bar-height": `${week.percent}%`, ...fadeDelayStyle(index * 30) }}
+                title={`${week.label}: ${week.percent}% complete`}
+              >
+                <span />
+                <em>{week.shortLabel}</em>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="chart-card rhythm-card">
+          <div className="chart-title">
+            <h3>Weekday rhythm</h3>
+            <span>{calendar.days.length} days</span>
+          </div>
+          <div className="rhythm-list">
+            {weekdayProgress.map((day, index) => (
+              <div key={day.label} className="rhythm-row" style={fadeDelayStyle(index * 30)}>
+                <span>{day.label}</span>
+                <div className="progress-bar" aria-label={`${day.label}: ${day.percent}% complete`}>
+                  <i style={{ width: `${day.percent}%` }} />
+                </div>
+                <strong>{day.percent}%</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="chart-card item-progress-card">
+          <div className="chart-title">
+            <h3>Tracked items</h3>
+            <span>{itemProgress.length} active</span>
+          </div>
+          {itemProgress.length ? (
+            <div className="item-progress-list">
+              {itemProgress.map((item, index) => (
+                <div key={item.id} className="item-progress-row" style={fadeDelayStyle(index * 35)}>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>{item.type}</span>
+                  </div>
+                  <div className="progress-bar" aria-label={`${item.name}: ${item.percent}% complete`}>
+                    <i style={{ width: `${item.percent}%` }} />
+                  </div>
+                  <em>{item.percent}%</em>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-        <div className="legend">
-          <span>Less</span>
-          {[0, 1, 2, 3, 4].map((level) => (
-            <span key={level} className={`legend-dot day-cell level-${level}`} style={fadeDelayStyle(level * 30)} />
-          ))}
-          <span>More</span>
-        </div>
-        <div className="stats">
-          <Stat value={stats.currentStreak} label="day streak" enterDelay={0} />
-          <Stat value={stats.completeDays} label="complete days" enterDelay={40} />
-          <Stat value={stats.totalProofs} label="proofs" enterDelay={80} />
+          ) : (
+            <div className="empty compact-empty">Add a habit or objective to build progress charts.</div>
+          )}
         </div>
       </div>
     </section>
@@ -954,13 +1022,67 @@ function getProgressStats(items, days) {
     else break;
   }
 
+  const possibleCompletions = days.reduce((sum, day) => sum + day.total, 0);
+  const actualCompletions = days.reduce((sum, day) => sum + day.done, 0);
+
   return {
     currentStreak,
     completeDays: days.filter((day) => day.total > 0 && day.done === day.total).length,
+    averagePercent: possibleCompletions ? Math.round((actualCompletions / possibleCompletions) * 100) : 0,
     totalProofs: items
       .filter((item) => item.type === "objective")
       .reduce((sum, item) => sum + Object.values(item.records).filter((record) => record.completed && record.photo).length, 0),
   };
+}
+
+function getWeeklyProgress(weeks) {
+  return weeks.map((week) => {
+    const days = week.days.filter((day) => !day.isFuture);
+    const total = days.reduce((sum, day) => sum + day.total, 0);
+    const done = days.reduce((sum, day) => sum + day.done, 0);
+    const firstDay = days[0] || week.days[0];
+    const lastDay = days[days.length - 1] || firstDay;
+
+    return {
+      key: week.key,
+      label: `${formatShortDate(firstDay.key)} - ${formatShortDate(lastDay.key)}`,
+      shortLabel: formatTinyDate(firstDay.key),
+      percent: total ? Math.round((done / total) * 100) : 0,
+    };
+  });
+}
+
+function getWeekdayProgress(days) {
+  return DAY_LABELS.map((label, index) => {
+    const matchingDays = days.filter((day) => {
+      const dayIndex = parseKey(day.key).getDay() === 0 ? 6 : parseKey(day.key).getDay() - 1;
+      return dayIndex === index;
+    });
+    const total = matchingDays.reduce((sum, day) => sum + day.total, 0);
+    const done = matchingDays.reduce((sum, day) => sum + day.done, 0);
+
+    return {
+      label,
+      percent: total ? Math.round((done / total) * 100) : 0,
+    };
+  });
+}
+
+function getItemProgress(items, days) {
+  return items
+    .map((item) => {
+      const createdAt = parseKey(item.createdAt);
+      const eligibleDays = days.filter((day) => parseKey(day.key) >= createdAt);
+      const done = eligibleDays.filter((day) => isDoneOn(item, day.key)).length;
+
+      return {
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        percent: eligibleDays.length ? Math.round((done / eligibleDays.length) * 100) : 0,
+      };
+    })
+    .sort((a, b) => b.percent - a.percent || a.name.localeCompare(b.name));
 }
 
 function todayKey() {
@@ -999,6 +1121,11 @@ function formatShortDate(key) {
     month: "short",
     day: "numeric",
   });
+}
+
+function formatTinyDate(key) {
+  const date = parseKey(key);
+  return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
 function formatActivityDate(key) {

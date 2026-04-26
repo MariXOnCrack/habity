@@ -712,6 +712,151 @@ button:focus-visible,
   padding: 16px;
 }
 
+.progress-dashboard {
+  display: grid;
+  gap: 14px;
+}
+
+.chart-card {
+  animation: subtle-fade-in 250ms ease-out both;
+  background: rgba(21, 21, 18, 0.72);
+  border: 1px solid #25241f;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.chart-title {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.chart-title h3 {
+  color: #d8d5cf;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chart-title span {
+  color: var(--muted-deep);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.weekly-bars {
+  align-items: end;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(14, minmax(8px, 1fr));
+  height: 142px;
+}
+
+.weekly-bar {
+  --fade-opacity: 1;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
+  display: grid;
+  gap: 7px;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  min-width: 0;
+}
+
+.weekly-bar span {
+  align-self: end;
+  background: var(--accent);
+  border-radius: 4px;
+  display: block;
+  opacity: 0.82;
+  height: var(--bar-height);
+}
+
+.weekly-bar em {
+  color: var(--muted-deep);
+  display: block;
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.rhythm-list,
+.item-progress-list {
+  display: grid;
+  gap: 10px;
+}
+
+.rhythm-row,
+.item-progress-row {
+  --fade-opacity: 1;
+  align-items: center;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 34px minmax(0, 1fr) 40px;
+}
+
+.rhythm-row span,
+.rhythm-row strong,
+.item-progress-row em,
+.item-progress-row span {
+  color: var(--muted-deep);
+  font-size: 11px;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.rhythm-row strong,
+.item-progress-row em {
+  text-align: right;
+}
+
+.progress-bar {
+  background: #11110f;
+  border: 1px solid #24231f;
+  border-radius: 5px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.progress-bar i {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+}
+
+.item-progress-row {
+  grid-template-columns: minmax(110px, 0.78fr) minmax(0, 1fr) 42px;
+}
+
+.item-progress-row strong {
+  color: #d8d5cf;
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-progress-row span {
+  display: block;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.compact-empty {
+  margin-top: 0;
+}
+
 .heatmap-wrap {
   overflow-x: auto;
   padding-bottom: 6px;
@@ -1096,6 +1241,13 @@ button:focus-visible,
     margin-top: 0;
   }
 
+  .progress-dashboard {
+    align-items: start;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+
   .timelapse-card {
     align-items: start;
     display: grid;
@@ -1127,10 +1279,34 @@ button:focus-visible,
 
   .progress-view .grid-card {
     align-items: start;
-    column-gap: 24px;
+    column-gap: 28px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 230px;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    padding: 24px;
+  }
+
+  .weekly-chart-card {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .rhythm-card {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .item-progress-card {
+    grid-column: 1 / -1;
+  }
+
+  .chart-card {
     padding: 20px;
+  }
+
+  .weekly-bars {
+    height: 190px;
   }
 
   .progress-view .heatmap-wrap {
@@ -1150,12 +1326,35 @@ button:focus-visible,
   }
 
   .progress-view .stat {
-    min-height: 82px;
+    min-height: 96px;
+    padding: 18px 16px;
+  }
+
+  .progress-view .stat strong {
+    font-size: 30px;
   }
 
   .activity-grid {
-    --cell-size: 14px;
-    --cell-gap: 5px;
+    --cell-size: 18px;
+    --cell-gap: 6px;
+  }
+
+  .month-labels {
+    font-size: 11px;
+  }
+
+  .weekday-labels {
+    font-size: 10px;
+  }
+
+  .item-progress-list {
+    column-gap: 26px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 14px;
+  }
+
+  .item-progress-row {
+    grid-template-columns: minmax(150px, 0.78fr) minmax(0, 1fr) 46px;
   }
 
   .view-settings {
@@ -1168,7 +1367,8 @@ button:focus-visible,
   .settings-panel,
   .danger-panel,
   .grid-card,
-  .timelapse-card {
+  .timelapse-card,
+  .chart-card {
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
   }
 
