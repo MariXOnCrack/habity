@@ -59,7 +59,7 @@ body {
 body::before {
   background: var(--app-bg);
   content: "";
-  inset: -10vh 0;
+  inset: -20vh 0;
   pointer-events: none;
   position: fixed;
   z-index: -1;
