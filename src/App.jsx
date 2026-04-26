@@ -208,6 +208,7 @@ function App() {
       <main className="shell" aria-live="polite">
         <Header stats={stats} />
         <ProgressLine stats={stats} />
+        <BottomNav activeTab={activeTab} onTab={switchTab} />
 
         {loading && <div className="empty">Loading your habit data...</div>}
         {!loading && error && (
@@ -220,7 +221,7 @@ function App() {
         )}
 
         {!loading && !error && (
-          <div className="view-content" key={activeTab}>
+          <div className={`view-content view-${activeTab}`} key={activeTab}>
             {activeTab === "today" && (
               <TodayView
                 items={items}
@@ -267,7 +268,6 @@ function App() {
         )}
       </main>
 
-      <BottomNav activeTab={activeTab} onTab={switchTab} />
       {toast && <div className="toast">{toast}</div>}
     </>
   );
@@ -364,7 +364,7 @@ function ItemSection({ title, count, children }) {
   const hasItems = childArray.some(Boolean);
 
   return (
-    <section>
+    <section className="item-section">
       <div className="section-title">
         <h2>{title}</h2>
         <span>{count}</span>
@@ -508,7 +508,7 @@ function TimelapseView({ items, frames, frameIndex, filter, playing, onFilter, o
   const frame = frames[frameIndex];
 
   return (
-    <section>
+    <section className="timelapse-view">
       <div className="section-title">
         <h2>Daily timelapse</h2>
         <span>{frames.length} frames</span>
@@ -580,7 +580,7 @@ function ProgressView({ items }) {
   const stats = getProgressStats(items, calendar.days);
 
   return (
-    <section>
+    <section className="progress-view">
       <div className="section-title">
         <h2>Progress map</h2>
         <span>{calendar.rangeLabel}</span>
@@ -668,7 +668,7 @@ function SettingsView({ itemCount, themeId, clearingData, onTheme, onClearData }
 
   return (
     <>
-      <section>
+      <section className="settings-section">
         <div className="section-title">
           <h2>Theme color</h2>
           <span>{getTheme(themeId).label}</span>
@@ -692,7 +692,7 @@ function SettingsView({ itemCount, themeId, clearingData, onTheme, onClearData }
         </div>
       </section>
 
-      <section>
+      <section className="settings-section">
         <div className="section-title">
           <h2>Data</h2>
           <span>{itemCount} items</span>

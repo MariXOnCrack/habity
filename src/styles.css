@@ -1017,6 +1017,166 @@ button:focus-visible,
   }
 }
 
+@media (min-width: 900px) {
+  .shell {
+    max-width: 1120px;
+    padding: 48px 32px 72px;
+  }
+
+  .topbar {
+    align-items: flex-end;
+    margin-bottom: 22px;
+  }
+
+  .title {
+    font-size: 60px;
+  }
+
+  .today-score {
+    min-width: 116px;
+  }
+
+  .score-number {
+    font-size: 34px;
+  }
+
+  .progress-line {
+    margin-bottom: 14px;
+  }
+
+  .bottom-nav {
+    bottom: auto;
+    box-shadow: none;
+    left: auto;
+    margin: 0 0 30px;
+    max-width: none;
+    position: static;
+    transform: none;
+    width: 100%;
+    z-index: auto;
+  }
+
+  .nav-btn {
+    font-size: 12px;
+    min-height: 42px;
+  }
+
+  .view-content {
+    min-height: 460px;
+  }
+
+  .view-today {
+    align-items: start;
+    display: grid;
+    gap: 0 38px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .view-today .item-section {
+    min-width: 0;
+  }
+
+  .view-today .item-section .section-title,
+  .view-settings .settings-section .section-title {
+    margin-top: 0;
+  }
+
+  .view-today .add-pill {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-top: 24px;
+  }
+
+  .item {
+    min-height: 68px;
+  }
+
+  .view-timelapse .section-title,
+  .view-progress .section-title {
+    margin-top: 0;
+  }
+
+  .timelapse-card {
+    align-items: start;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) 286px;
+  }
+
+  .timelapse-card .frame {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    max-height: 640px;
+  }
+
+  .timelapse-controls {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+  }
+
+  .filmstrip {
+    align-content: start;
+    flex-wrap: wrap;
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0;
+    max-height: 430px;
+    overflow-y: auto;
+  }
+
+  .progress-view .grid-card {
+    align-items: start;
+    column-gap: 24px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    padding: 20px;
+  }
+
+  .progress-view .heatmap-wrap {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .progress-view .legend {
+    grid-column: 1;
+  }
+
+  .progress-view .stats {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    grid-template-columns: 1fr;
+    margin-top: 0;
+  }
+
+  .progress-view .stat {
+    min-height: 82px;
+  }
+
+  .activity-grid {
+    --cell-size: 14px;
+    --cell-gap: 5px;
+  }
+
+  .view-settings {
+    align-items: start;
+    display: grid;
+    gap: 38px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-panel,
+  .danger-panel,
+  .grid-card,
+  .timelapse-card {
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+  }
+
+  .modal-panel {
+    margin-top: 18px;
+  }
+}
+
 @media (max-width: 380px) {
   .danger-panel {
     align-items: stretch;
