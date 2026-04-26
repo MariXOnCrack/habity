@@ -338,19 +338,21 @@ function TodayView({
         ))}
       </ItemSection>
 
-      {showAdd ? (
-        <AddForm
-          draftType={draftType}
-          draftName={draftName}
-          onDraftType={onDraftType}
-          onDraftName={onDraftName}
-          onSubmit={onAddItem}
-          onCancel={onCloseAdd}
-        />
-      ) : (
-        <button className="add-pill" onClick={onShowAdd}>
-          <span>+</span> New habit or objective
-        </button>
+      <button className="add-pill" onClick={onShowAdd}>
+        <span>+</span> New habit or objective
+      </button>
+
+      {showAdd && (
+        <AddModal onClose={onCloseAdd}>
+          <AddForm
+            draftType={draftType}
+            draftName={draftName}
+            onDraftType={onDraftType}
+            onDraftName={onDraftName}
+            onSubmit={onAddItem}
+            onCancel={onCloseAdd}
+          />
+        </AddModal>
       )}
     </>
   );
@@ -424,6 +426,37 @@ function ObjectiveRow({ item, today, enterDelay, onSaveProof }) {
         onChange={(event) => onSaveProof(item.id, event.target.files?.[0])}
       />
     </article>
+  );
+}
+
+function AddModal({ children, onClose }) {
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === "Escape") onClose();
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <div
+        className="modal-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-dialog-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h2 id="add-dialog-title">New item</h2>
+          <button className="modal-close" type="button" onClick={onClose} aria-label="Close add item dialog">
+            x
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }
 
