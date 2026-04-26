@@ -131,6 +131,21 @@ app.post("/api/objectives/:id/proof", upload.single("photo"), async (request, re
   }
 });
 
+app.delete("/api/data", async (_request, response, next) => {
+  try {
+    const photoResult = await pool.query("select photo_path from records where photo_path is not null");
+    const photoPaths = photoResult.rows.map((row) => row.photo_path);
+
+    await pool.query("delete from records");
+    await pool.query("delete from items");
+    await removeUploadedFiles(photoPaths);
+
+    response.json(await serializeState());
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use(express.static(publicDir));
 app.get("*", (_request, response) => {
   response.sendFile(path.join(publicDir, "index.html"));
@@ -150,7 +165,6 @@ async function start() {
   await fs.mkdir(uploadDir, { recursive: true });
   await waitForDatabase();
   await migrate();
-  await seedIfEmpty();
 
   app.listen(port, () => {
     console.log(`Habity listening on http://0.0.0.0:${port}`);
@@ -192,41 +206,6 @@ async function migrate() {
   `);
 }
 
-async function seedIfEmpty() {
-  const count = await pool.query("select count(*)::int as count from items");
-  if (count.rows[0].count > 0) return;
-
-  const habits = [
-    ["Morning pages", [1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1]],
-    ["Drink enough water", [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1]],
-    ["Walk outside", [0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]],
-  ];
-
-  for (const [index, [name, pattern]] of habits.entries()) {
-    const id = randomUUID();
-    await pool.query("insert into items (id, type, name, created_at, sort_order) values ($1, 'habit', $2, $3, $4)", [
-      id,
-      name,
-      dateKey(addDays(new Date(), -pattern.length)),
-      index,
-    ]);
-
-    for (const [patternIndex, done] of pattern.entries()) {
-      if (!done) continue;
-      const offset = pattern.length - 1 - patternIndex;
-      await pool.query("insert into records (item_id, record_date, completed) values ($1, $2, true)", [
-        id,
-        dateKey(addDays(new Date(), -offset)),
-      ]);
-    }
-  }
-
-  await pool.query(
-    "insert into items (id, type, name, created_at, sort_order) values ($1, 'objective', $2, $3, 10), ($4, 'objective', $5, $3, 11)",
-    [randomUUID(), "Progress photo", dateKey(addDays(new Date(), -21)), randomUUID(), "Desk reset proof"],
-  );
-}
-
 async function serializeState() {
   const itemsResult = await pool.query("select id, type, name, created_at, sort_order from items order by sort_order, created_at, name");
   const recordsResult = await pool.query(
@@ -260,6 +239,24 @@ async function serializeState() {
   };
 }
 
+async function removeUploadedFiles(fileNames) {
+  const uploadsRoot = path.resolve(uploadDir);
+  const uniqueNames = [...new Set(fileNames.filter(Boolean))];
+
+  await Promise.all(
+    uniqueNames.map(async (fileName) => {
+      const target = path.resolve(uploadsRoot, fileName);
+      if (!target.startsWith(`${uploadsRoot}${path.sep}`)) return;
+
+      try {
+        await fs.unlink(target);
+      } catch (error) {
+        if (error.code !== "ENOENT") console.warn(`Could not remove uploaded file ${fileName}`, error);
+      }
+    }),
+  );
+}
+
 async function getItem(id) {
   const result = await pool.query("select id, type from items where id = $1", [id]);
   return result.rows[0];
@@ -290,12 +287,6 @@ function dateKey(date) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function addDays(date, amount) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + amount);
-  return next;
 }
 
 function formatDateKey(value) {

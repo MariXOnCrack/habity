@@ -9,6 +9,11 @@
   --muted: #706e68;
   --muted-deep: #3d3c39;
   --accent: #c4c0b8;
+  --accent-rgb: 196, 192, 184;
+  --activity-level-1: #32342a;
+  --activity-level-2: #59633c;
+  --activity-level-3: #8a995f;
+  --activity-level-4: #d5d0a8;
   --shadow: 0 28px 90px rgba(0, 0, 0, 0.38);
 }
 
@@ -28,7 +33,7 @@ body {
   min-height: 100vh;
   min-height: 100svh;
   background:
-    radial-gradient(circle at 10% 0%, rgba(196, 192, 184, 0.08), transparent 32rem),
+    radial-gradient(circle at 10% 0%, rgba(var(--accent-rgb), 0.08), transparent 32rem),
     radial-gradient(circle at 100% 18%, rgba(143, 165, 110, 0.07), transparent 24rem),
     linear-gradient(180deg, #11110f 0%, var(--bg) 52%);
   color: var(--text);
@@ -420,7 +425,7 @@ button {
 .timelapse-card {
   background:
     linear-gradient(180deg, rgba(26, 26, 22, 0.92), rgba(14, 14, 12, 0.92)),
-    radial-gradient(circle at 20% 0%, rgba(233, 217, 173, 0.14), transparent 18rem);
+    radial-gradient(circle at 20% 0%, rgba(var(--accent-rgb), 0.14), transparent 18rem);
   border: 1px solid #292721;
   border-radius: 32px;
   box-shadow: var(--shadow);
@@ -644,19 +649,19 @@ button {
 }
 
 .day-cell.level-1 {
-  background: #32342a;
+  background: var(--activity-level-1);
 }
 
 .day-cell.level-2 {
-  background: #59633c;
+  background: var(--activity-level-2);
 }
 
 .day-cell.level-3 {
-  background: #8a995f;
+  background: var(--activity-level-3);
 }
 
 .day-cell.level-4 {
-  background: #d5d0a8;
+  background: var(--activity-level-4);
 }
 
 .day-cell.is-today {
@@ -717,6 +722,100 @@ button {
   text-transform: uppercase;
 }
 
+.settings-panel,
+.danger-panel {
+  background: rgba(21, 21, 18, 0.72);
+  border: 1px solid #25241f;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.theme-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.theme-option {
+  align-items: center;
+  background: #11110f;
+  border: 1px solid #282722;
+  border-radius: 18px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  gap: 9px;
+  min-height: 48px;
+  padding: 10px;
+  text-align: left;
+}
+
+.theme-option.is-active {
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: var(--accent);
+  color: var(--text-soft);
+}
+
+.theme-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.025);
+  flex: 0 0 auto;
+  height: 18px;
+  width: 18px;
+}
+
+.danger-panel {
+  align-items: center;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.setting-copy {
+  min-width: 0;
+}
+
+.setting-copy strong {
+  color: #d8d5cf;
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.setting-copy span {
+  color: var(--muted-deep);
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.danger-button {
+  background: transparent;
+  border: 1px solid #5c2d2d;
+  border-radius: 999px;
+  color: #d98282;
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 38px;
+  padding: 8px 13px;
+  white-space: nowrap;
+}
+
+.danger-button.is-confirming {
+  background: #d98282;
+  border-color: #d98282;
+  color: #120d0d;
+}
+
+.danger-button:disabled {
+  border-color: #2a2724;
+  color: var(--muted-deep);
+  cursor: not-allowed;
+}
+
 .bottom-nav {
   background: rgba(16, 16, 14, 0.88);
   backdrop-filter: blur(18px);
@@ -726,7 +825,7 @@ button {
   box-shadow: 0 16px 54px rgba(0, 0, 0, 0.35);
   display: grid;
   gap: 4px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   left: 50%;
   max-width: 394px;
   padding: 4px;
@@ -742,7 +841,7 @@ button {
   border-radius: 999px;
   color: var(--muted-deep);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
   min-height: 44px;
 }
 
@@ -767,5 +866,16 @@ button {
 @media (min-width: 700px) {
   .shell {
     padding-top: 48px;
+  }
+}
+
+@media (max-width: 380px) {
+  .danger-panel {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .danger-button {
+    width: 100%;
   }
 }

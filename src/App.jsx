@@ -3,10 +3,42 @@ import { useEffect, useRef, useState } from "react";
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 const ACTIVITY_WEEK_COUNT = 14;
+const THEME_STORAGE_KEY = "habity-theme";
+const THEME_OPTIONS = [
+  {
+    id: "stone",
+    label: "Stone",
+    accent: "#c4c0b8",
+    accentRgb: "196, 192, 184",
+    levels: ["#32342a", "#59633c", "#8a995f", "#d5d0a8"],
+  },
+  {
+    id: "sage",
+    label: "Sage",
+    accent: "#a7d982",
+    accentRgb: "167, 217, 130",
+    levels: ["#203227", "#31583a", "#5c9155", "#a7d982"],
+  },
+  {
+    id: "sky",
+    label: "Sky",
+    accent: "#8ec7ff",
+    accentRgb: "142, 199, 255",
+    levels: ["#1c2a38", "#244d71", "#3f83bd", "#8ec7ff"],
+  },
+  {
+    id: "rose",
+    label: "Rose",
+    accent: "#f0a0b4",
+    accentRgb: "240, 160, 180",
+    levels: ["#38202a", "#693447", "#b7617a", "#f0a0b4"],
+  },
+];
 const TABS = [
   { id: "today", label: "Today" },
   { id: "timelapse", label: "Timelapse" },
   { id: "progress", label: "Progress" },
+  { id: "settings", label: "Settings" },
 ];
 
 function App() {
@@ -20,15 +52,23 @@ function App() {
   const [objectiveFilter, setObjectiveFilter] = useState("all");
   const [frameIndex, setFrameIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [themeId, setThemeId] = useState(getStoredThemeId);
+  const [clearingData, setClearingData] = useState(false);
   const [toast, setToast] = useToast();
 
   const today = todayKey();
   const stats = getTodayStats(items, today);
   const frames = getFrames(items, objectiveFilter);
+  const theme = getTheme(themeId);
 
   useEffect(() => {
     loadState();
   }, []);
+
+  useEffect(() => {
+    applyTheme(theme);
+    storeThemeId(theme.id);
+  }, [theme]);
 
   useEffect(() => {
     if (frameIndex >= frames.length) {
@@ -136,6 +176,30 @@ function App() {
     setFrameIndex((index) => (index + amount + frames.length) % frames.length);
   }
 
+  function changeTheme(nextThemeId) {
+    setThemeId(nextThemeId);
+    setToast("Theme updated.");
+  }
+
+  async function clearAllData() {
+    try {
+      setClearingData(true);
+      const data = await requestJson("/api/data", { method: "DELETE" });
+      setItems(data.items);
+      setObjectiveFilter("all");
+      setFrameIndex(0);
+      setPlaying(false);
+      setShowAdd(false);
+      setDraftName("");
+      setToast("All data cleared.");
+    } catch (requestError) {
+      console.error(requestError);
+      setToast("Could not clear data.");
+    } finally {
+      setClearingData(false);
+    }
+  }
+
   return (
     <>
       <main className="shell" aria-live="polite">
@@ -184,6 +248,16 @@ function App() {
         )}
 
         {!loading && !error && activeTab === "progress" && <ProgressView items={items} />}
+
+        {!loading && !error && activeTab === "settings" && (
+          <SettingsView
+            itemCount={items.length}
+            themeId={theme.id}
+            clearingData={clearingData}
+            onTheme={changeTheme}
+            onClearData={clearAllData}
+          />
+        )}
       </main>
 
       <BottomNav activeTab={activeTab} onTab={switchTab} />
@@ -522,6 +596,78 @@ function Stat({ value, label }) {
   );
 }
 
+function SettingsView({ itemCount, themeId, clearingData, onTheme, onClearData }) {
+  const [confirmingClear, setConfirmingClear] = useState(false);
+
+  useEffect(() => {
+    if (!confirmingClear) return undefined;
+    const timer = window.setTimeout(() => setConfirmingClear(false), 3600);
+    return () => window.clearTimeout(timer);
+  }, [confirmingClear]);
+
+  useEffect(() => {
+    if (itemCount === 0) setConfirmingClear(false);
+  }, [itemCount]);
+
+  async function handleClearClick() {
+    if (!confirmingClear) {
+      setConfirmingClear(true);
+      return;
+    }
+
+    await onClearData();
+    setConfirmingClear(false);
+  }
+
+  return (
+    <>
+      <section>
+        <div className="section-title">
+          <h2>Theme color</h2>
+          <span>{getTheme(themeId).label}</span>
+        </div>
+        <div className="settings-panel">
+          <div className="theme-options" aria-label="Theme color">
+            {THEME_OPTIONS.map((theme) => (
+              <button
+                key={theme.id}
+                className={`theme-option ${theme.id === themeId ? "is-active" : ""}`}
+                type="button"
+                aria-pressed={theme.id === themeId}
+                onClick={() => onTheme(theme.id)}
+              >
+                <span className="theme-swatch" style={{ background: theme.accent }} />
+                <span>{theme.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="section-title">
+          <h2>Data</h2>
+          <span>{itemCount} items</span>
+        </div>
+        <div className="danger-panel">
+          <div className="setting-copy">
+            <strong>Clear all data</strong>
+            <span>Deletes habits, objectives, history, and proof photos.</span>
+          </div>
+          <button
+            className={`danger-button ${confirmingClear ? "is-confirming" : ""}`}
+            type="button"
+            disabled={clearingData || itemCount === 0}
+            onClick={handleClearClick}
+          >
+            {itemCount === 0 ? "No data" : clearingData ? "Clearing..." : confirmingClear ? "Confirm clear" : "Clear data"}
+          </button>
+        </div>
+      </section>
+    </>
+  );
+}
+
 function BottomNav({ activeTab, onTab }) {
   return (
     <nav className="bottom-nav" aria-label="Main navigation">
@@ -544,6 +690,41 @@ function useToast() {
   }, [toast]);
 
   return [toast, setToastValue];
+}
+
+function getStoredThemeId() {
+  if (typeof window === "undefined") return THEME_OPTIONS[0].id;
+
+  try {
+    return getTheme(window.localStorage.getItem(THEME_STORAGE_KEY)).id;
+  } catch {
+    return THEME_OPTIONS[0].id;
+  }
+}
+
+function storeThemeId(themeId) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, themeId);
+  } catch {
+    // Theme persistence is a convenience; ignore storage failures.
+  }
+}
+
+function getTheme(themeId) {
+  return THEME_OPTIONS.find((theme) => theme.id === themeId) || THEME_OPTIONS[0];
+}
+
+function applyTheme(theme) {
+  if (typeof document === "undefined") return;
+
+  const root = document.documentElement;
+  root.style.setProperty("--accent", theme.accent);
+  root.style.setProperty("--accent-rgb", theme.accentRgb);
+  theme.levels.forEach((color, index) => {
+    root.style.setProperty(`--activity-level-${index + 1}`, color);
+  });
 }
 
 async function requestJson(path, options = {}) {
