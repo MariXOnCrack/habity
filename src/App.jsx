@@ -216,47 +216,51 @@ function App() {
           </div>
         )}
 
-        {!loading && !error && activeTab === "today" && (
-          <TodayView
-            items={items}
-            today={today}
-            showAdd={showAdd}
-            draftType={draftType}
-            draftName={draftName}
-            onToggleHabit={toggleHabit}
-            onSaveProof={saveProof}
-            onShowAdd={() => setShowAdd(true)}
-            onCloseAdd={closeAddForm}
-            onDraftType={setDraftType}
-            onDraftName={setDraftName}
-            onAddItem={addItem}
-          />
-        )}
+        {!loading && !error && (
+          <div className="view-content" key={activeTab}>
+            {activeTab === "today" && (
+              <TodayView
+                items={items}
+                today={today}
+                showAdd={showAdd}
+                draftType={draftType}
+                draftName={draftName}
+                onToggleHabit={toggleHabit}
+                onSaveProof={saveProof}
+                onShowAdd={() => setShowAdd(true)}
+                onCloseAdd={closeAddForm}
+                onDraftType={setDraftType}
+                onDraftName={setDraftName}
+                onAddItem={addItem}
+              />
+            )}
 
-        {!loading && !error && activeTab === "timelapse" && (
-          <TimelapseView
-            items={items}
-            frames={frames}
-            frameIndex={frameIndex}
-            filter={objectiveFilter}
-            playing={playing}
-            onFilter={changeFilter}
-            onFrame={setFrameIndex}
-            onMove={moveFrame}
-            onPlaying={setPlaying}
-          />
-        )}
+            {activeTab === "timelapse" && (
+              <TimelapseView
+                items={items}
+                frames={frames}
+                frameIndex={frameIndex}
+                filter={objectiveFilter}
+                playing={playing}
+                onFilter={changeFilter}
+                onFrame={setFrameIndex}
+                onMove={moveFrame}
+                onPlaying={setPlaying}
+              />
+            )}
 
-        {!loading && !error && activeTab === "progress" && <ProgressView items={items} />}
+            {activeTab === "progress" && <ProgressView items={items} />}
 
-        {!loading && !error && activeTab === "settings" && (
-          <SettingsView
-            itemCount={items.length}
-            themeId={theme.id}
-            clearingData={clearingData}
-            onTheme={changeTheme}
-            onClearData={clearAllData}
-          />
+            {activeTab === "settings" && (
+              <SettingsView
+                itemCount={items.length}
+                themeId={theme.id}
+                clearingData={clearingData}
+                onTheme={changeTheme}
+                onClearData={clearAllData}
+              />
+            )}
+          </div>
         )}
       </main>
 
@@ -321,14 +325,14 @@ function TodayView({
   return (
     <>
       <ItemSection title="Habits" count={`${habits.filter((item) => isDoneOn(item, today)).length}/${habits.length}`}>
-        {habits.map((item) => (
-          <HabitRow key={item.id} item={item} today={today} onToggle={onToggleHabit} />
+        {habits.map((item, index) => (
+          <HabitRow key={item.id} item={item} today={today} enterDelay={index * 40} onToggle={onToggleHabit} />
         ))}
       </ItemSection>
 
       <ItemSection title="Objectives" count={`${objectives.filter((item) => isDoneOn(item, today)).length}/${objectives.length}`}>
-        {objectives.map((item) => (
-          <ObjectiveRow key={item.id} item={item} today={today} onSaveProof={onSaveProof} />
+        {objectives.map((item, index) => (
+          <ObjectiveRow key={item.id} item={item} today={today} enterDelay={index * 40} onSaveProof={onSaveProof} />
         ))}
       </ItemSection>
 
@@ -365,12 +369,12 @@ function ItemSection({ title, count, children }) {
   );
 }
 
-function HabitRow({ item, today, onToggle }) {
+function HabitRow({ item, today, enterDelay, onToggle }) {
   const done = isDoneOn(item, today);
   const week = getWeekLog(item);
 
   return (
-    <article className={`item ${done ? "is-done" : ""}`}>
+    <article className={`item ${done ? "is-done" : ""}`} style={fadeDelayStyle(enterDelay)}>
       <button className={`check ${done ? "is-on" : ""}`} onClick={() => onToggle(item.id)} aria-label={`Toggle ${item.name}`}>
         {done && <CheckIcon />}
       </button>
@@ -391,13 +395,13 @@ function HabitRow({ item, today, onToggle }) {
   );
 }
 
-function ObjectiveRow({ item, today, onSaveProof }) {
+function ObjectiveRow({ item, today, enterDelay, onSaveProof }) {
   const record = item.records[today];
   const done = Boolean(record?.completed);
   const inputId = `proof-${item.id}`;
 
   return (
-    <article className={`item ${done ? "is-done" : ""}`}>
+    <article className={`item ${done ? "is-done" : ""}`} style={fadeDelayStyle(enterDelay)}>
       <label className={`proof-thumb ${record?.photo ? "has-photo" : ""}`} htmlFor={inputId} aria-label={`Upload proof for ${item.name}`}>
         {record?.photo ? <img src={record.photo} alt="" /> : <CameraIcon />}
       </label>
@@ -475,11 +479,16 @@ function TimelapseView({ items, frames, frameIndex, filter, playing, onFilter, o
       </div>
 
       <div className="filter-row">
-        <button className={`chip ${filter === "all" ? "is-active" : ""}`} onClick={() => onFilter("all")}>
+        <button className={`chip ${filter === "all" ? "is-active" : ""}`} style={fadeDelayStyle(0)} onClick={() => onFilter("all")}>
           All proof
         </button>
-        {objectives.map((item) => (
-          <button key={item.id} className={`chip ${filter === item.id ? "is-active" : ""}`} onClick={() => onFilter(item.id)}>
+        {objectives.map((item, index) => (
+          <button
+            key={item.id}
+            className={`chip ${filter === item.id ? "is-active" : ""}`}
+            style={fadeDelayStyle((index + 1) * 40)}
+            onClick={() => onFilter(item.id)}
+          >
             {item.name}
           </button>
         ))}
@@ -512,6 +521,7 @@ function TimelapseView({ items, frames, frameIndex, filter, playing, onFilter, o
               <button
                 key={`${item.itemId}-${item.key}`}
                 className={`film ${index === frameIndex ? "is-active" : ""}`}
+                style={fadeDelayStyle(index * 40)}
                 onClick={() => {
                   onPlaying(false);
                   onFrame(index);
@@ -555,12 +565,13 @@ function ProgressView({ items }) {
               ))}
             </div>
             <div className="heatmap">
-              {calendar.weeks.map((week) => (
+              {calendar.weeks.map((week, weekIndex) => (
                 <div className="heatmap-week" key={week.key}>
-                  {week.days.map((day) => (
+                  {week.days.map((day, dayIndex) => (
                     <span
                       key={day.key}
                       className={`day-cell level-${day.level} ${day.isToday ? "is-today" : ""} ${day.isFuture ? "is-future" : ""}`}
+                      style={fadeDelayStyle((weekIndex * DAY_LABELS.length + dayIndex) * 30)}
                       title={formatActivityTitle(day)}
                       aria-label={formatActivityTitle(day)}
                     />
@@ -573,23 +584,23 @@ function ProgressView({ items }) {
         <div className="legend">
           <span>Less</span>
           {[0, 1, 2, 3, 4].map((level) => (
-            <span key={level} className={`legend-dot day-cell level-${level}`} />
+            <span key={level} className={`legend-dot day-cell level-${level}`} style={fadeDelayStyle(level * 30)} />
           ))}
           <span>More</span>
         </div>
         <div className="stats">
-          <Stat value={stats.currentStreak} label="day streak" />
-          <Stat value={stats.completeDays} label="complete days" />
-          <Stat value={stats.totalProofs} label="proofs" />
+          <Stat value={stats.currentStreak} label="day streak" enterDelay={0} />
+          <Stat value={stats.completeDays} label="complete days" enterDelay={40} />
+          <Stat value={stats.totalProofs} label="proofs" enterDelay={80} />
         </div>
       </div>
     </section>
   );
 }
 
-function Stat({ value, label }) {
+function Stat({ value, label, enterDelay = 0 }) {
   return (
-    <div className="stat">
+    <div className="stat" style={fadeDelayStyle(enterDelay)}>
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
@@ -628,12 +639,13 @@ function SettingsView({ itemCount, themeId, clearingData, onTheme, onClearData }
         </div>
         <div className="settings-panel">
           <div className="theme-options" aria-label="Theme color">
-            {THEME_OPTIONS.map((theme) => (
+            {THEME_OPTIONS.map((theme, index) => (
               <button
                 key={theme.id}
                 className={`theme-option ${theme.id === themeId ? "is-active" : ""}`}
                 type="button"
                 aria-pressed={theme.id === themeId}
+                style={fadeDelayStyle(index * 40)}
                 onClick={() => onTheme(theme.id)}
               >
                 <span className="theme-swatch" style={{ background: theme.accent }} />
@@ -671,8 +683,13 @@ function SettingsView({ itemCount, themeId, clearingData, onTheme, onClearData }
 function BottomNav({ activeTab, onTab }) {
   return (
     <nav className="bottom-nav" aria-label="Main navigation">
-      {TABS.map((tab) => (
-        <button key={tab.id} className={`nav-btn ${activeTab === tab.id ? "is-active" : ""}`} onClick={() => onTab(tab.id)}>
+      {TABS.map((tab, index) => (
+        <button
+          key={tab.id}
+          className={`nav-btn ${activeTab === tab.id ? "is-active" : ""}`}
+          style={fadeDelayStyle(index * 30)}
+          onClick={() => onTab(tab.id)}
+        >
           {tab.label}
         </button>
       ))}
@@ -725,6 +742,10 @@ function applyTheme(theme) {
   theme.levels.forEach((color, index) => {
     root.style.setProperty(`--activity-level-${index + 1}`, color);
   });
+}
+
+function fadeDelayStyle(delay = 0) {
+  return { "--fade-delay": `${delay}ms` };
 }
 
 async function requestJson(path, options = {}) {

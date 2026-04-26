@@ -23,6 +23,16 @@
   padding: 0;
 }
 
+@keyframes subtle-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: var(--fade-opacity, 1);
+  }
+}
+
 html {
   background: var(--bg);
   color: var(--text);
@@ -48,6 +58,31 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+button,
+.proof-thumb,
+.proof-action {
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+  transition:
+    transform 150ms ease-out,
+    outline-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+button:hover:not(:disabled),
+.proof-thumb:hover,
+.proof-action:hover {
+  transform: scale(1.02);
+}
+
+button:focus-visible,
+.proof-thumb:focus-visible,
+.proof-action:focus-visible,
+.input:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.14);
+  outline-color: var(--accent);
+}
+
 #root {
   min-height: 100vh;
   min-height: 100svh;
@@ -61,6 +96,11 @@ button {
   margin: 0 auto;
   padding: 28px 18px calc(96px + env(safe-area-inset-bottom));
   position: relative;
+  animation: subtle-fade-in 250ms ease-out both;
+}
+
+.view-content {
+  animation: subtle-fade-in 250ms ease-out both;
 }
 
 .topbar {
@@ -141,7 +181,6 @@ button {
   background: var(--accent);
   border-radius: inherit;
   height: 100%;
-  transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .section-title {
@@ -170,7 +209,10 @@ button {
 }
 
 .item {
+  --fade-opacity: 1;
   align-items: center;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   border-bottom: 1px solid #1e1e1b;
   display: grid;
   gap: 12px;
@@ -197,7 +239,6 @@ button {
   flex-shrink: 0;
   height: 24px;
   justify-content: center;
-  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
   width: 24px;
 }
 
@@ -312,18 +353,10 @@ button {
   margin-top: 20px;
   min-height: 42px;
   padding: 10px 18px;
-  transition: border-color 0.2s, color 0.2s;
-}
-
-.add-pill:active,
-.add-pill:hover,
-.proof-action:active,
-.proof-action:hover {
-  border-color: #4a4842;
-  color: var(--text-soft);
 }
 
 .add-form {
+  animation: subtle-fade-in 240ms ease-out both;
   background: linear-gradient(180deg, rgba(25, 25, 21, 0.9), rgba(17, 17, 15, 0.9));
   border: 1px solid #262520;
   border-radius: 12px;
@@ -340,8 +373,12 @@ button {
   border-bottom: 1px solid #30302b;
   color: var(--text);
   font-size: 16px;
-  outline: none;
+  outline: 1px solid transparent;
+  outline-offset: 4px;
   padding: 12px 2px;
+  transition:
+    outline-color 150ms ease-out,
+    box-shadow 150ms ease-out;
   width: 100%;
 }
 
@@ -423,6 +460,7 @@ button {
 }
 
 .timelapse-card {
+  animation: subtle-fade-in 250ms ease-out both;
   background:
     linear-gradient(180deg, rgba(26, 26, 22, 0.92), rgba(14, 14, 12, 0.92)),
     radial-gradient(circle at 20% 0%, rgba(var(--accent-rgb), 0.14), transparent 18rem);
@@ -519,6 +557,9 @@ button {
 }
 
 .film {
+  --fade-opacity: 1;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   background: #191915;
   border: 1px solid #2a2925;
   border-radius: 6px;
@@ -553,6 +594,9 @@ button {
 }
 
 .chip {
+  --fade-opacity: 1;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   background: transparent;
   border: 1px solid #2a2925;
   border-radius: 8px;
@@ -571,6 +615,7 @@ button {
 }
 
 .grid-card {
+  animation: subtle-fade-in 250ms ease-out both;
   background: rgba(21, 21, 18, 0.72);
   border: 1px solid #25241f;
   border-radius: 10px;
@@ -640,6 +685,9 @@ button {
 }
 
 .day-cell {
+  --fade-opacity: 1;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   background: #1d1c18;
   border: 1px solid rgba(255, 255, 255, 0.025);
   border-radius: 3px;
@@ -670,9 +718,9 @@ button {
 }
 
 .day-cell.is-future {
+  --fade-opacity: 0.45;
   background: transparent;
   border-color: rgba(255, 255, 255, 0.018);
-  opacity: 0.45;
 }
 
 .legend {
@@ -699,6 +747,9 @@ button {
 }
 
 .stat {
+  --fade-opacity: 1;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   background: #11110f;
   border: 1px solid #24231f;
   border-radius: 8px;
@@ -724,6 +775,7 @@ button {
 
 .settings-panel,
 .danger-panel {
+  animation: subtle-fade-in 250ms ease-out both;
   background: rgba(21, 21, 18, 0.72);
   border: 1px solid #25241f;
   border-radius: 10px;
@@ -738,7 +790,10 @@ button {
 }
 
 .theme-option {
+  --fade-opacity: 1;
   align-items: center;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   background: #11110f;
   border: 1px solid #282722;
   border-radius: 8px;
@@ -836,6 +891,9 @@ button {
 }
 
 .nav-btn {
+  --fade-opacity: 1;
+  animation: subtle-fade-in 240ms ease-out both;
+  animation-delay: var(--fade-delay, 0ms);
   background: transparent;
   border: 0;
   border-radius: 8px;
@@ -851,6 +909,7 @@ button {
 }
 
 .toast {
+  animation: subtle-fade-in 200ms ease-out both;
   background: #d9d2c2;
   border-radius: 8px;
   bottom: calc(78px + env(safe-area-inset-bottom));
@@ -877,5 +936,14 @@ button {
 
   .danger-button {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
