@@ -204,6 +204,7 @@ function App() {
 
   return (
     <>
+      <div className="app-bg" aria-hidden="true" />
       <main className="shell" aria-live="polite">
         <Header stats={stats} />
         <ProgressLine stats={stats} />

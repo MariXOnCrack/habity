@@ -2,6 +2,7 @@
 
 :root {
   --bg: #0f0f0d;
+  --bg-top: #171714;
   --panel: #151512;
   --line: #252522;
   --text: #e8e5df;
@@ -17,7 +18,7 @@
   --app-bg:
     radial-gradient(circle at 10% 0%, rgba(var(--accent-rgb), 0.08), transparent 32rem),
     radial-gradient(circle at 100% 18%, rgba(143, 165, 110, 0.07), transparent 24rem),
-    linear-gradient(180deg, #11110f 0%, var(--bg) 52%);
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 52%);
   --shadow: 0 28px 90px rgba(0, 0, 0, 0.38);
 }
 
@@ -38,8 +39,8 @@
 }
 
 html {
-  background-color: #11110f;
   background: var(--app-bg);
+  background-color: var(--bg-top);
   color: var(--text);
   font-family: "DM Sans", "Helvetica Neue", sans-serif;
   min-height: 100%;
@@ -47,7 +48,7 @@ html {
 
 body {
   background: var(--app-bg);
-  background-color: #11110f;
+  background-color: var(--bg-top);
   color: var(--text);
   isolation: isolate;
   min-height: 100vh;
@@ -59,7 +60,7 @@ body {
 body::before {
   background: var(--app-bg);
   content: "";
-  inset: -20vh 0;
+  inset: -40vh 0;
   pointer-events: none;
   position: fixed;
   z-index: -1;
@@ -101,10 +102,19 @@ button:focus-visible,
 
 #root {
   background: var(--app-bg);
-  background-color: #11110f;
+  background-color: var(--bg-top);
   min-height: 100vh;
   min-height: 100svh;
   min-height: 100dvh;
+  position: relative;
+}
+
+.app-bg {
+  background: var(--app-bg);
+  inset: calc(-40vh - env(safe-area-inset-top)) 0 -40vh;
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
 }
 
 .shell {
@@ -117,6 +127,7 @@ button:focus-visible,
   padding: 28px 18px calc(96px + env(safe-area-inset-bottom));
   position: relative;
   animation: subtle-fade-in 250ms ease-out both;
+  z-index: 1;
 }
 
 .view-content {
