@@ -583,21 +583,64 @@ button {
   display: none;
 }
 
-.heatmap {
+.activity-grid {
+  --cell-size: 13px;
+  --cell-gap: 4px;
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 13px;
-  grid-template-rows: repeat(7, 13px);
-  gap: 4px;
+  grid-template-columns: 26px max-content;
+  grid-template-rows: 15px auto;
   min-width: max-content;
+  row-gap: 6px;
+}
+
+.month-labels {
+  color: var(--muted-deep);
+  display: grid;
+  font-size: 10px;
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-columns: repeat(var(--week-count), var(--cell-size));
+  column-gap: var(--cell-gap);
+  line-height: 1;
+}
+
+.month-labels span {
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.weekday-labels {
+  color: var(--muted-deep);
+  display: grid;
+  font-size: 9px;
+  grid-column: 1;
+  grid-row: 2;
+  grid-template-rows: repeat(7, var(--cell-size));
+  gap: var(--cell-gap);
+  line-height: var(--cell-size);
+}
+
+.heatmap {
+  display: flex;
+  gap: var(--cell-gap);
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.heatmap-week {
+  display: grid;
+  gap: var(--cell-gap);
+  grid-template-rows: repeat(7, var(--cell-size));
 }
 
 .day-cell {
   background: #1d1c18;
   border: 1px solid rgba(255, 255, 255, 0.025);
   border-radius: 3px;
-  height: 13px;
-  width: 13px;
+  display: block;
+  height: var(--cell-size, 13px);
+  width: var(--cell-size, 13px);
 }
 
 .day-cell.level-1 {
@@ -614,6 +657,17 @@ button {
 
 .day-cell.level-4 {
   background: #d5d0a8;
+}
+
+.day-cell.is-today {
+  outline: 1px solid var(--text-soft);
+  outline-offset: 1px;
+}
+
+.day-cell.is-future {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.018);
+  opacity: 0.45;
 }
 
 .legend {

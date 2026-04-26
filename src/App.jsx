@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+const ACTIVITY_WEEK_COUNT = 14;
 const TABS = [
   { id: "today", label: "Today" },
   { id: "timelapse", label: "Timelapse" },
@@ -455,26 +456,44 @@ function TimelapseView({ items, frames, frameIndex, filter, playing, onFilter, o
 }
 
 function ProgressView({ items }) {
-  const days = getCalendarDays(items, 98);
-  const stats = getProgressStats(items, days);
+  const calendar = getActivityCalendar(items, ACTIVITY_WEEK_COUNT);
+  const stats = getProgressStats(items, calendar.days);
 
   return (
     <section>
       <div className="section-title">
         <h2>Progress map</h2>
-        <span>last 14 weeks</span>
+        <span>{calendar.rangeLabel}</span>
       </div>
       <div className="grid-card">
-        <div className="heatmap-wrap">
-          <div className="heatmap" aria-label="GitHub style completion grid">
-            {days.map((day) => (
-              <span
-                key={day.key}
-                className={`day-cell level-${day.level}`}
-                title={`${day.label} - ${day.done}/${day.total}`}
-                aria-label={`${day.label}: ${day.done} of ${day.total} complete`}
-              />
-            ))}
+        <div className="heatmap-wrap" role="img" aria-label={`GitHub style activity from ${calendar.rangeLabel}`}>
+          <div className="activity-grid" style={{ "--week-count": calendar.weeks.length }}>
+            <div className="month-labels" aria-hidden="true">
+              {calendar.months.map((month) => (
+                <span key={`${month.label}-${month.start}`} style={{ gridColumn: `${month.start} / ${month.end}` }}>
+                  {month.label}
+                </span>
+              ))}
+            </div>
+            <div className="weekday-labels" aria-hidden="true">
+              {DAY_LABELS.map((label) => (
+                <span key={label}>{label}</span>
+              ))}
+            </div>
+            <div className="heatmap">
+              {calendar.weeks.map((week) => (
+                <div className="heatmap-week" key={week.key}>
+                  {week.days.map((day) => (
+                    <span
+                      key={day.key}
+                      className={`day-cell level-${day.level} ${day.isToday ? "is-today" : ""} ${day.isFuture ? "is-future" : ""}`}
+                      title={formatActivityTitle(day)}
+                      aria-label={formatActivityTitle(day)}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="legend">
@@ -596,24 +615,81 @@ function getFrames(items, objectiveFilter) {
     .sort((a, b) => a.key.localeCompare(b.key));
 }
 
-function getCalendarDays(items, count) {
-  const today = new Date();
+function getActivityCalendar(items, weekCount) {
+  const today = startOfDay(new Date());
+  const currentWeekStart = startOfWeek(today);
+  const start = addDays(currentWeekStart, -((weekCount - 1) * DAY_LABELS.length));
+  const weeks = [];
   const days = [];
 
-  for (let index = count - 1; index >= 0; index -= 1) {
-    const date = addDays(today, -index);
-    const key = dateKey(date);
-    const completion = completionForDate(items, key);
-    days.push({
-      key,
-      label: formatShortDate(key),
-      done: completion.done,
-      total: completion.total,
-      level: contributionLevel(completion.ratio),
+  for (let weekIndex = 0; weekIndex < weekCount; weekIndex += 1) {
+    const weekStart = addDays(start, weekIndex * DAY_LABELS.length);
+    const weekDays = DAY_LABELS.map((_, dayIndex) => {
+      const date = addDays(weekStart, dayIndex);
+      const key = dateKey(date);
+      const completion = completionForDate(items, key);
+      const isFuture = date > today;
+      const day = {
+        key,
+        label: formatActivityDate(key),
+        done: isFuture ? 0 : completion.done,
+        total: isFuture ? 0 : completion.total,
+        level: isFuture ? 0 : contributionLevel(completion.ratio),
+        isFuture,
+        isToday: key === dateKey(today),
+      };
+
+      if (!isFuture) days.push(day);
+      return day;
+    });
+
+    weeks.push({
+      key: dateKey(weekStart),
+      days: weekDays,
     });
   }
 
-  return days;
+  return {
+    weeks,
+    days,
+    months: getMonthMarkers(weeks),
+    rangeLabel: `${formatShortDate(days[0]?.key || dateKey(today))} - ${formatShortDate(dateKey(today))}`,
+  };
+}
+
+function startOfWeek(date) {
+  const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
+  return addDays(date, -dayIndex);
+}
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getMonthMarkers(weeks) {
+  const markers = [];
+
+  for (const [index, week] of weeks.entries()) {
+    const monthStart = week.days.find((day) => parseKey(day.key).getDate() === 1);
+    if (index === 0 || monthStart) {
+      const markerDay = monthStart || week.days[0];
+      markers.push({
+        label: parseKey(markerDay.key).toLocaleDateString("en-US", { month: "short" }),
+        start: index + 1,
+      });
+    }
+  }
+
+  return markers.map((marker, index) => ({
+    ...marker,
+    end: markers[index + 1]?.start || weeks.length + 1,
+  }));
+}
+
+function formatActivityTitle(day) {
+  if (day.isFuture) return `${day.label} - future`;
+  if (day.total === 0) return `${day.label} - no tracked items`;
+  return `${day.label} - ${day.done}/${day.total} complete`;
 }
 
 function completionForDate(items, key) {
@@ -682,6 +758,14 @@ function formatDate(date) {
 
 function formatShortDate(key) {
   return parseKey(key).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatActivityDate(key) {
+  return parseKey(key).toLocaleDateString("en-US", {
+    weekday: "short",
     month: "short",
     day: "numeric",
   });
