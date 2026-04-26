@@ -177,7 +177,9 @@ function App() {
   }
 
   function changeTheme(nextThemeId) {
-    setThemeId(nextThemeId);
+    const nextTheme = getTheme(nextThemeId);
+    applyTheme(nextTheme);
+    setThemeId(nextTheme.id);
     setToast("Theme updated.");
   }
 
@@ -567,11 +569,11 @@ function ProgressView({ items }) {
             <div className="heatmap">
               {calendar.weeks.map((week, weekIndex) => (
                 <div className="heatmap-week" key={week.key}>
-                  {week.days.map((day, dayIndex) => (
+                  {week.days.map((day) => (
                     <span
                       key={day.key}
                       className={`day-cell level-${day.level} ${day.isToday ? "is-today" : ""} ${day.isFuture ? "is-future" : ""}`}
-                      style={fadeDelayStyle((weekIndex * DAY_LABELS.length + dayIndex) * 30)}
+                      style={fadeDelayStyle(weekIndex * 16)}
                       title={formatActivityTitle(day)}
                       aria-label={formatActivityTitle(day)}
                     />

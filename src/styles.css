@@ -72,7 +72,7 @@ button,
 button:hover:not(:disabled),
 .proof-thumb:hover,
 .proof-action:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 button:focus-visible,
@@ -686,7 +686,7 @@ button:focus-visible,
 
 .day-cell {
   --fade-opacity: 1;
-  animation: subtle-fade-in 240ms ease-out both;
+  animation: subtle-fade-in 200ms ease-out both;
   animation-delay: var(--fade-delay, 0ms);
   background: #1d1c18;
   border: 1px solid rgba(255, 255, 255, 0.025);
@@ -910,7 +910,7 @@ button:focus-visible,
 
 .toast {
   animation: subtle-fade-in 200ms ease-out both;
-  background: #d9d2c2;
+  background: var(--accent);
   border-radius: 8px;
   bottom: calc(78px + env(safe-area-inset-bottom));
   color: var(--bg);
