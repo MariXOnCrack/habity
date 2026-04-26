@@ -16,7 +16,7 @@ docker compose up --build
 Then open:
 
 ```txt
-http://localhost:3000
+http://localhost:3560
 ```
 
 Data is persisted in two Docker volumes:
@@ -39,4 +39,4 @@ In another terminal:
 npm run dev
 ```
 
-The Vite dev server proxies `/api` and `/uploads` to `http://127.0.0.1:3000`.
+The Vite dev server proxies `/api` and `/uploads` to `http://127.0.0.1:3560`.

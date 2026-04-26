@@ -5,9 +5,9 @@ services:
     environment:
       DATABASE_URL: postgres://habity:habity@db:5432/habity
       UPLOAD_DIR: /app/uploads
-      PORT: 3000
+      PORT: 3560
     ports:
-      - "3000:3000"
+      - "3560:3560"
     volumes:
       - uploads-data:/app/uploads
     depends_on:
