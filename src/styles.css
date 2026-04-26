@@ -6,8 +6,8 @@
   --line: #252522;
   --text: #e8e5df;
   --text-soft: #c4c0b8;
-  --muted: #706e68;
-  --muted-deep: #3d3c39;
+  --muted: #8a867d;
+  --muted-deep: #5d5952;
   --accent: #c4c0b8;
   --accent-rgb: 196, 192, 184;
   --activity-level-1: #32342a;
@@ -222,9 +222,9 @@ button:focus-visible,
 }
 
 .item.is-done .item-name {
-  color: #54514c;
+  color: #716c63;
   text-decoration: line-through;
-  text-decoration-color: #34322e;
+  text-decoration-color: #565149;
 }
 
 .check,
@@ -316,7 +316,7 @@ button:focus-visible,
 .proof-action {
   align-items: center;
   background: transparent;
-  border: 1px dashed #34322f;
+  border: 1px dashed #4b4740;
   border-radius: 10px;
   color: var(--muted);
   cursor: pointer;
@@ -343,7 +343,7 @@ button:focus-visible,
 .add-pill {
   align-items: center;
   background: none;
-  border: 1px dashed #2b2a26;
+  border: 1px dashed #44413b;
   border-radius: 10px;
   color: var(--muted-deep);
   cursor: pointer;
@@ -383,7 +383,7 @@ button:focus-visible,
 }
 
 .input::placeholder {
-  color: #3f3e39;
+  color: #6b665e;
 }
 
 .type-switch {
