@@ -38,6 +38,7 @@
 }
 
 html {
+  background-color: #11110f;
   background: var(--app-bg);
   color: var(--text);
   font-family: "DM Sans", "Helvetica Neue", sans-serif;
@@ -47,10 +48,21 @@ html {
 body {
   background: var(--app-bg);
   background-color: #11110f;
+  color: var(--text);
+  isolation: isolate;
   min-height: 100vh;
   min-height: 100svh;
   min-height: 100dvh;
-  color: var(--text);
+  position: relative;
+}
+
+body::before {
+  background: var(--app-bg);
+  content: "";
+  inset: -10vh 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: -1;
 }
 
 button,
@@ -89,6 +101,7 @@ button:focus-visible,
 
 #root {
   background: var(--app-bg);
+  background-color: #11110f;
   min-height: 100vh;
   min-height: 100svh;
   min-height: 100dvh;
@@ -375,12 +388,12 @@ button:focus-visible,
 }
 
 .modal-backdrop {
-  align-items: center;
+  align-items: start;
   animation: subtle-fade-in 200ms ease-out both;
   background: rgba(5, 5, 4, 0.72);
   display: grid;
   inset: 0;
-  padding: 18px;
+  padding: max(42px, calc(env(safe-area-inset-top) + 28px)) 18px 18px;
   position: fixed;
   z-index: 60;
 }
@@ -392,7 +405,7 @@ button:focus-visible,
   border-radius: 12px;
   box-shadow: var(--shadow);
   justify-self: center;
-  max-height: calc(100dvh - 36px);
+  max-height: calc(100dvh - 60px);
   overflow-y: auto;
   padding: 14px;
   width: min(100%, 394px);
